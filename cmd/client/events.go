@@ -8,6 +8,11 @@ import (
 	"time"
 )
 
+type GEventService struct {
+	service *calendar.Service
+	config  *config
+}
+
 type GEvent struct {
 	Description   string
 	EndDateTime   GEventDateTime
@@ -21,7 +26,7 @@ type GEventDateTime struct {
 	DateTime time.Time
 }
 
-func (c *GClient) Insert(calendarID string, event *GEvent) (string, error) {
+func (c *GEventService) Insert(calendarID string, event *GEvent) (string, error) {
 	v := validator.New()
 
 	if validateDates(v, event); !v.Valid() {
@@ -66,7 +71,7 @@ func (c *GClient) Insert(calendarID string, event *GEvent) (string, error) {
 	log.Println(eventParsed.End.Date)
 	log.Println(eventParsed.Start.Date)
 
-	resp, err := c.Service.Events.Insert(calendarID, eventParsed).Do()
+	resp, err := c.service.Events.Insert(calendarID, eventParsed).Do()
 	if err != nil {
 		return "", err
 	}
@@ -75,7 +80,7 @@ func (c *GClient) Insert(calendarID string, event *GEvent) (string, error) {
 
 }
 
-func (c *GClient) List(calendarID string) ([]string, error) {
+func (c *GEventService) List(calendarID string) ([]string, error) {
 
 	resp, err := c.ListByTimeMax(calendarID, time.Date(1900, 01, 01, 00, 00, 00, 00, &time.Location{}))
 	if err != nil {
@@ -85,9 +90,9 @@ func (c *GClient) List(calendarID string) ([]string, error) {
 	return resp, nil
 }
 
-func (c *GClient) ListByTimeMax(calendarID string, timeMax time.Time) ([]string, error) {
+func (c *GEventService) ListByTimeMax(calendarID string, timeMax time.Time) ([]string, error) {
 
-	resp, err := c.Service.Events.List(calendarID).TimeMin(timeMax.Format(c.config.formatTime)).Do()
+	resp, err := c.service.Events.List(calendarID).TimeMin(timeMax.Format(c.config.formatTime)).Do()
 	if err != nil {
 		return nil, err
 	}
@@ -99,8 +104,8 @@ func (c *GClient) ListByTimeMax(calendarID string, timeMax time.Time) ([]string,
 	return idList, nil
 }
 
-func (c *GClient) Delete(calendarID string, eventId string) error {
-	err := c.Service.Events.Delete(calendarID, eventId).Do()
+func (c *GEventService) Delete(calendarID string, eventId string) error {
+	err := c.service.Events.Delete(calendarID, eventId).Do()
 	if err != nil {
 		return err
 	}

@@ -4,21 +4,42 @@ import (
 	"context"
 	"github.com/stretchr/testify/assert"
 	"log"
+	"os"
 	"testing"
 	"time"
 )
 
-func TestEvents(t *testing.T) {
+var calendarID string
+var c *GClient
+
+func TestMain(m *testing.M) {
 
 	credFileName := "credentials.json"
-	calendarID := "37bf2cf949f9e9d908a0daf93fa16b8af477aa4a8e94c6e9de5e03711f0cf7ef@group.calendar.google.com"
 
 	ctx := context.Background()
 
-	c, err := NewClient(credFileName, calendarID, ctx)
+	var err error
+	c, err = NewClient(credFileName, ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
+	resp, err := c.GCalendar.Insert("Test Event Calendar")
+	if err != nil {
+		log.Println(err)
+	}
+	calendarID = resp
+
+	exitVal := m.Run()
+
+	err = c.GCalendar.Delete(calendarID)
+	if err != nil {
+		log.Println(err)
+	}
+	os.Exit(exitVal)
+}
+
+func TestEvents(t *testing.T) {
+
 	testEventDate := &GEvent{
 		Description: "Short description",
 		EndDateTime: GEventDateTime{
@@ -46,28 +67,28 @@ func TestEvents(t *testing.T) {
 	var eventIDList []string
 
 	t.Run("INSERT Event with Date", func(t *testing.T) {
-		result, err := c.Insert(calendarID, testEventDate)
+		result, err := c.GEvent.Insert(calendarID, testEventDate)
 
 		assert.Empty(t, err)
 		assert.NotEmpty(t, result)
 	})
 
 	t.Run("INSERT Event with DateTime", func(t *testing.T) {
-		result, err := c.Insert(calendarID, testEventDateTime)
+		result, err := c.GEvent.Insert(calendarID, testEventDateTime)
 		t.Log(result)
 		assert.Empty(t, err)
 		assert.NotEmpty(t, result)
 	})
 
 	t.Run("LIST all events TimeMax, finds event in 2 days", func(t *testing.T) {
-		result, err := c.ListByTimeMax(calendarID, time.Now().Add(46*time.Hour))
+		result, err := c.GEvent.ListByTimeMax(calendarID, time.Now().Add(46*time.Hour))
 		t.Log(result[0])
 		assert.Empty(t, err)
 		assert.Equal(t, 1, len(result))
 	})
 
 	t.Run("LIST all events", func(t *testing.T) {
-		result, err := c.List(calendarID)
+		result, err := c.GEvent.List(calendarID)
 		assert.Empty(t, err)
 		assert.Equal(t, 2, len(result))
 
@@ -76,10 +97,10 @@ func TestEvents(t *testing.T) {
 
 	t.Run("DELETE all events", func(t *testing.T) {
 		for _, eventID := range eventIDList {
-			err := c.Delete(calendarID, eventID)
+			err := c.GEvent.Delete(calendarID, eventID)
 			assert.Empty(t, err)
 		}
-		result, err := c.List(calendarID)
+		result, err := c.GEvent.List(calendarID)
 		assert.Empty(t, err)
 		assert.True(t, len(result) == 0)
 	})
@@ -106,7 +127,7 @@ func TestEvents(t *testing.T) {
 				StartDateTime: date,
 				Summary:       "TEST Event DateTime",
 			}
-			result, err := c.Insert(calendarID, testEventValidation)
+			result, err := c.GEvent.Insert(calendarID, testEventValidation)
 			t.Log(err)
 			assert.NotEmpty(t, err)
 			assert.Empty(t, result)
@@ -123,7 +144,7 @@ func TestEvents(t *testing.T) {
 					},
 					Summary: "TEST Event DateTime",
 				}
-				result, err := c.Insert(calendarID, testEventValidation)
+				result, err := c.GEvent.Insert(calendarID, testEventValidation)
 				t.Log(err)
 				assert.NotEmpty(t, err)
 				assert.Empty(t, result)

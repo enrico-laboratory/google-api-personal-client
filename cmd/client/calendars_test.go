@@ -1,28 +1,59 @@
 package client
 
 import (
+	"context"
+	"github.com/stretchr/testify/assert"
+	"log"
 	"testing"
 )
 
 func TestCalendar(t *testing.T) {
 
-	//var c *GClient
-	//
-	//credFileName := "credentials.json"
-	//calendarID := "962a549564311593b04b9c30113d09c7c6222f1f7405822b291a33626576c130@group.calendar.google.com"
-	//
-	//ctx := context.Background()
-	//
-	//var err error
-	//c, err = NewClient(credFileName, calendarID, ctx)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//t.Run("GET Calendar", func(t *testing.T) {
-	//	result, err := c.Get(calendarID)
-	//	expected := "Notion"
-	//	actual := result
-	//	assert.Empty(t, err)
-	//	assert.Equal(t, expected, actual)
-	//})
+	credFileName := "credentials.json"
+
+	ctx := context.Background()
+
+	c, err := NewClient(credFileName, ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var calendarID string
+
+	t.Run("INSERT Calendar", func(t *testing.T) {
+		summary := "Test Calendar"
+		result, err := c.GCalendar.Insert(summary)
+		t.Log(result)
+		assert.Empty(t, err)
+		assert.NotEmpty(t, result)
+
+		calendarID = result
+	})
+
+	t.Run("GET Calendar", func(t *testing.T) {
+		result, err := c.GCalendar.Get(calendarID)
+		expected := "Test Calendar"
+		actual := result
+		assert.Empty(t, err)
+		assert.Equal(t, expected, actual)
+	})
+
+	t.Run("UPDATE Calendar", func(t *testing.T) {
+		calendar := &GCalendar{
+			Description: "Test description",
+			Location:    "Unknown location",
+			Summary:     "Test Calendar Override",
+			ColorId:     "#34eb46",
+		}
+		result, err := c.GCalendar.Patch(calendarID, calendar)
+		expected := "Test Calendar"
+		actual := result
+		assert.Empty(t, err)
+		assert.Equal(t, expected, actual)
+	})
+
+	t.Run("DELETE Calendar", func(t *testing.T) {
+		err := c.GCalendar.Delete(calendarID)
+		assert.Empty(t, err)
+	})
 }

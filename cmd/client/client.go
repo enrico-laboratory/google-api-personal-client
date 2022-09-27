@@ -16,16 +16,15 @@ import (
 
 type config struct {
 	formatTime string
-	calendar   string
 	timeZone   string
 }
 
 type GClient struct {
-	Service *calendar.Service
-	config  config
+	GEvent    GEventService
+	GCalendar GCalendarService
 }
 
-func NewClient(credFileName, calendarID string, ctx context.Context) (*GClient, error) {
+func NewClient(credFileName string, ctx context.Context) (*GClient, error) {
 
 	b, err := os.ReadFile(credFileName)
 	if err != nil {
@@ -43,12 +42,19 @@ func NewClient(credFileName, calendarID string, ctx context.Context) (*GClient, 
 		return nil, err
 	}
 
+	cfg := &config{
+		formatTime: time.RFC3339,
+		timeZone:   "Europe/Amsterdam",
+	}
+
 	gClient := &GClient{
-		Service: srv,
-		config: config{
-			formatTime: time.RFC3339,
-			calendar:   calendarID,
-			timeZone:   "Europe/Amsterdam",
+		GEvent: GEventService{
+			service: srv,
+			config:  cfg,
+		},
+		GCalendar: GCalendarService{
+			service: srv,
+			config:  cfg,
 		},
 	}
 
