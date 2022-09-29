@@ -1,4 +1,4 @@
-package client
+package googleclient
 
 type Service interface {
 }
