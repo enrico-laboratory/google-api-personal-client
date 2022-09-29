@@ -1,8 +1,6 @@
-package client
+package googleclient
 
-import (
-	"google.golang.org/api/calendar/v3"
-)
+import "google.golang.org/api/calendar/v3"
 
 type GCalendar struct {
 	Description string
