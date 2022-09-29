@@ -40,7 +40,7 @@ func TestMain(m *testing.M) {
 
 func TestEvents(t *testing.T) {
 
-	testEventDate := &GEvent{
+	testEventDate := &GEventModel{
 		Description: "Short description",
 		EndDateTime: GEventDateTime{
 			Date: time.Now().Add(24 * time.Hour),
@@ -52,7 +52,7 @@ func TestEvents(t *testing.T) {
 		Summary: "TEST Event Date",
 	}
 
-	testEventDateTime := &GEvent{
+	testEventDateTime := &GEventModel{
 		Description: "Short description",
 		EndDateTime: GEventDateTime{
 			DateTime: time.Now().Add(48 * time.Hour).Add(2 * time.Hour),
@@ -118,7 +118,7 @@ func TestEvents(t *testing.T) {
 
 	for _, date := range eventDateValidation {
 		t.Run("INSERT test Start date validation", func(t *testing.T) {
-			testEventValidation := &GEvent{
+			testEventValidation := &GEventModel{
 				Description: "Short description",
 				EndDateTime: GEventDateTime{
 					DateTime: time.Now().Add(48 * time.Hour).Add(2 * time.Hour),
@@ -135,7 +135,7 @@ func TestEvents(t *testing.T) {
 
 		for _, date := range eventDateValidation {
 			t.Run("INSERT test End Date validation", func(t *testing.T) {
-				testEventValidation := &GEvent{
+				testEventValidation := &GEventModel{
 					Description: "Short description",
 					EndDateTime: date,
 					Location:    "Test Location",

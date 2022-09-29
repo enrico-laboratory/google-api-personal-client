@@ -39,7 +39,7 @@ func TestCalendar(t *testing.T) {
 	})
 
 	t.Run("UPDATE Calendar", func(t *testing.T) {
-		calendar := &GCalendar{
+		calendar := &GCalendarModel{
 			Description: "Test description",
 			Location:    "Unknown location",
 			Summary:     "Test Calendar Override",

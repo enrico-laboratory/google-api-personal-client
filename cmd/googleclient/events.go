@@ -13,7 +13,7 @@ type GEventService struct {
 	config  *config
 }
 
-type GEvent struct {
+type GEventModel struct {
 	Description   string
 	EndDateTime   GEventDateTime
 	Location      string
@@ -26,7 +26,7 @@ type GEventDateTime struct {
 	DateTime time.Time
 }
 
-func (c *GEventService) Insert(calendarID string, event *GEvent) (string, error) {
+func (c *GEventService) Insert(calendarID string, event *GEventModel) (string, error) {
 	v := validator.New()
 
 	if validateDates(v, event); !v.Valid() {
@@ -112,7 +112,7 @@ func (c *GEventService) Delete(calendarID string, eventId string) error {
 	return nil
 }
 
-func validateDates(v *validator.Validator, event *GEvent) {
+func validateDates(v *validator.Validator, event *GEventModel) {
 
 	v.Check(bothDateNotFull(&event.StartDateTime), "Start-date", "chose Date or DateTime, cannot input both")
 	v.Check(bothDateNotEmpty(&event.StartDateTime), "Start-date", "at least one date must be present")

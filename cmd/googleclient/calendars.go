@@ -2,7 +2,7 @@ package googleclient
 
 import "google.golang.org/api/calendar/v3"
 
-type GCalendar struct {
+type GCalendarModel struct {
 	Description string
 	Location    string
 	Summary     string
@@ -34,7 +34,7 @@ func (c *GCalendarService) Get(calendarId string) (string, error) {
 }
 
 // Patch adds only default reminders (method: popup, minutes: 90) the argument "cal" is not considered
-func (c *GCalendarService) Patch(calendarID string, cal *GCalendar) (string, error) {
+func (c *GCalendarService) Patch(calendarID string, cal *GCalendarModel) (string, error) {
 	defaultReminder := &calendar.EventReminder{
 		Method:  "popup",
 		Minutes: 90,
