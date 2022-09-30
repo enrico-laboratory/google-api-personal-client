@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/enrico-laboratory/go-validator"
 	"google.golang.org/api/calendar/v3"
-	"log"
 	"time"
 )
 
@@ -69,8 +68,6 @@ func (c *GEventService) Insert(calendarID string, event *GEventModel) (string, e
 		Status:  "confirmed",
 		Summary: event.Summary,
 	}
-	log.Println(eventParsed.End.Date)
-	log.Println(eventParsed.Start.Date)
 
 	resp, err := c.service.Events.Insert(calendarID, eventParsed).Do()
 	if err != nil {
