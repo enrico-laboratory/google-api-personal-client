@@ -14,6 +14,7 @@ type GEventService struct {
 }
 
 type GEventModel struct {
+	EventID       string
 	Description   string
 	EndDateTime   GEventDateTime
 	Location      string
@@ -80,9 +81,9 @@ func (c *GEventService) Insert(calendarID string, event *GEventModel) (string, e
 
 }
 
-func (c *GEventService) List(calendarID string) ([]string, error) {
+func (c *GEventService) List(calendarID string) ([]GEventModel, error) {
 
-	resp, err := c.ListByTimeMax(calendarID, time.Date(1900, 01, 01, 00, 00, 00, 00, &time.Location{}))
+	resp, err := c.ListByTimeMin(calendarID, time.Date(1900, 01, 01, 00, 00, 00, 00, &time.Location{}))
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +91,7 @@ func (c *GEventService) List(calendarID string) ([]string, error) {
 	return resp, nil
 }
 
-func (c *GEventService) ListByTimeMax(calendarID string, timeMax time.Time) ([]string, error) {
+func (c *GEventService) ListByTimeMin(calendarID string, timeMax time.Time) ([]GEventModel, error) {
 
 	resp, err := c.service.Events.List(calendarID).TimeMin(timeMax.Format(c.config.formatTime)).Do()
 	if err != nil {
@@ -101,7 +102,51 @@ func (c *GEventService) ListByTimeMax(calendarID string, timeMax time.Time) ([]s
 	for _, event := range resp.Items {
 		idList = append(idList, event.Id)
 	}
-	return idList, nil
+
+	var gEvents []GEventModel
+
+	for _, event := range resp.Items {
+
+		var startDateTimeObject GEventDateTime
+		var endDateTimeObject GEventDateTime
+
+		if event.Start.Date != "" {
+			layoutDate := "2006-01-02"
+			startDate, err := time.Parse(layoutDate, event.Start.Date)
+			if err != nil {
+				return nil, err
+			}
+			endDate, err := time.Parse(layoutDate, event.Start.Date)
+			if err != nil {
+				return nil, err
+			}
+			startDateTimeObject.Date = startDate
+			endDateTimeObject.Date = endDate
+		} else {
+			startDateTime, err := time.Parse(time.RFC3339, event.Start.DateTime)
+			if err != nil {
+				return nil, err
+			}
+			endDateTime, err := time.Parse(time.RFC3339, event.End.DateTime)
+			if err != nil {
+				return nil, err
+			}
+			startDateTimeObject.DateTime = startDateTime
+			endDateTimeObject.DateTime = endDateTime
+		}
+
+		gEvent := GEventModel{
+			EventID:       event.Id,
+			Description:   event.Description,
+			EndDateTime:   endDateTimeObject,
+			Location:      event.Location,
+			StartDateTime: startDateTimeObject,
+			Summary:       event.Summary,
+		}
+		gEvents = append(gEvents, gEvent)
+	}
+
+	return gEvents, nil
 }
 
 func (c *GEventService) Delete(calendarID string, eventId string) error {

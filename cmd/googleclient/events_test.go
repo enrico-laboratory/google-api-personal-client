@@ -64,7 +64,7 @@ func TestEvents(t *testing.T) {
 		Summary: "TEST Event DateTime",
 	}
 
-	var eventIDList []string
+	var eventIDList []GEventModel
 
 	t.Run("INSERT Event with Date", func(t *testing.T) {
 		result, err := c.GEvent.Insert(calendarID, testEventDate)
@@ -81,7 +81,7 @@ func TestEvents(t *testing.T) {
 	})
 
 	t.Run("LIST all events TimeMax, finds event in 2 days", func(t *testing.T) {
-		result, err := c.GEvent.ListByTimeMax(calendarID, time.Now().Add(46*time.Hour))
+		result, err := c.GEvent.ListByTimeMin(calendarID, time.Now().Add(46*time.Hour))
 		t.Log(result[0])
 		assert.Empty(t, err)
 		assert.Equal(t, 1, len(result))
@@ -96,8 +96,8 @@ func TestEvents(t *testing.T) {
 	})
 
 	t.Run("DELETE all events", func(t *testing.T) {
-		for _, eventID := range eventIDList {
-			err := c.GEvent.Delete(calendarID, eventID)
+		for _, event := range eventIDList {
+			err := c.GEvent.Delete(calendarID, event.EventID)
 			assert.Empty(t, err)
 		}
 		result, err := c.GEvent.List(calendarID)
