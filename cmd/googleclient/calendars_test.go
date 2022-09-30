@@ -43,7 +43,6 @@ func TestCalendar(t *testing.T) {
 			Description: "Test description",
 			Location:    "Unknown location",
 			Summary:     "Test Calendar Override",
-			ColorId:     "#34eb46",
 		}
 		result, err := c.GCalendar.Patch(calendarID, calendar)
 		expected := "Test Calendar"
@@ -55,5 +54,14 @@ func TestCalendar(t *testing.T) {
 	t.Run("DELETE Calendar", func(t *testing.T) {
 		err := c.GCalendar.Delete(calendarID)
 		assert.Empty(t, err)
+	})
+
+	t.Run("LIST Calendars", func(t *testing.T) {
+		list, err := c.GCalendar.List()
+		assert.Empty(t, err)
+		assert.True(t, len(list) > 1)
+		for _, calendar := range list {
+			log.Println("Summary:", calendar.Summary)
+		}
 	})
 }

@@ -3,10 +3,10 @@ package googleclient
 import "google.golang.org/api/calendar/v3"
 
 type GCalendarModel struct {
+	Id          string
 	Description string
 	Location    string
 	Summary     string
-	ColorId     string
 }
 
 type GCalendarService struct {
@@ -66,4 +66,24 @@ func (c *GCalendarService) Delete(calendarID string) error {
 		return err
 	}
 	return nil
+}
+
+func (c *GCalendarService) List() ([]GCalendarModel, error) {
+	list, err := c.service.CalendarList.List().Do()
+	if err != nil {
+		return nil, err
+	}
+	var gCalendarList []GCalendarModel
+	for _, calendar := range list.Items {
+		var gCalendar GCalendarModel
+		gCalendar.Description = calendar.Description
+		gCalendar.Location = calendar.Location
+		gCalendar.Summary = calendar.Summary
+		gCalendar.Id = calendar.Id
+
+		gCalendarList = append(gCalendarList, gCalendar)
+	}
+
+	return gCalendarList, nil
+
 }
