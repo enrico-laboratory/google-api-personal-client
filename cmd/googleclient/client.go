@@ -23,9 +23,9 @@ type GClient struct {
 	GCalendar GCalendarService
 }
 
-func NewClient(credFileName string, ctx context.Context) (*GClient, error) {
+func NewClient(credPath, tknPath string, ctx context.Context) (*GClient, error) {
 
-	b, err := os.ReadFile(credFileName)
+	b, err := os.ReadFile(credPath)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func NewClient(credFileName string, ctx context.Context) (*GClient, error) {
 	if err != nil {
 		return nil, err
 	}
-	client, err := getClient(clientConfig)
+	client, err := getClient(tknPath, clientConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -63,18 +63,17 @@ func NewClient(credFileName string, ctx context.Context) (*GClient, error) {
 }
 
 // Retrieve a token, saves the token, then returns the generated client.
-func getClient(config *oauth2.Config) (*http.Client, error) {
+func getClient(tknPath string, config *oauth2.Config) (*http.Client, error) {
 	// The file token.json stores the user's access and refresh tokens, and is
 	// created automatically when the authorization flow completes for the first
 	// time.
-	tokFile := "token.json"
-	tok, err := tokenFromFile(tokFile)
+	tok, err := tokenFromFile(tknPath)
 	if err != nil {
 		tok, err = getTokenFromWeb(config)
 		if err != nil {
 			return nil, err
 		}
-		err = saveToken(tokFile, tok)
+		err = saveToken(tknPath, tok)
 		if err != nil {
 			return nil, err
 		}
