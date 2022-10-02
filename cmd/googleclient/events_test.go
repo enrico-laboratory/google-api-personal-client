@@ -14,12 +14,13 @@ var c *GClient
 
 func TestMain(m *testing.M) {
 
-	credFileName := "credentials.json"
+	credPath := "/Users/eruggieri/repos/google-apil-personal-client/credentials.json"
+	tksPath := "/Users/eruggieri/repos/google-apil-personal-client/token.json"
 
 	ctx := context.Background()
 
 	var err error
-	c, err = NewClient(credFileName, ctx)
+	c, err = NewClient(credPath, tksPath, ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
