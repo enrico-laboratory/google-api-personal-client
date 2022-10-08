@@ -8,7 +8,6 @@ import (
 	"google.golang.org/api/option"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -22,8 +21,8 @@ type GClient struct {
 	GCalendar GCalendarService
 }
 
-func NewClient(ctx context.Context) (*GClient, error) {
-	keyPath := os.Getenv("KEY_PATH")
+func NewClient(ctx context.Context, keyPath string) (*GClient, error) {
+
 	client, err := getClient(keyPath)
 	if err != nil {
 		return nil, err
