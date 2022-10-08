@@ -4,14 +4,15 @@ import (
 	"context"
 	"github.com/stretchr/testify/assert"
 	"log"
+	"os"
 	"testing"
 )
 
 func TestCalendar(t *testing.T) {
-
-	//credPath := "/Users/eruggieri/repos/google-apil-personal-client/credentials.json"
-	//tksPath := "/Users/eruggieri/repos/google-apil-personal-client/token.json"
-	//credPath := "/Users/eruggieri/repos/google-apil-personal-client/private_key.json"
+	err := os.Setenv("KEY_PATH", "key.json")
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	ctx := context.Background()
 

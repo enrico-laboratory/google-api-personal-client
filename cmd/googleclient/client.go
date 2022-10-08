@@ -8,6 +8,7 @@ import (
 	"google.golang.org/api/option"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -22,8 +23,8 @@ type GClient struct {
 }
 
 func NewClient(ctx context.Context) (*GClient, error) {
-
-	client, err := getClient()
+	keyPath := os.Getenv("KEY_PATH")
+	client, err := getClient(keyPath)
 	if err != nil {
 		return nil, err
 	}
@@ -52,9 +53,9 @@ func NewClient(ctx context.Context) (*GClient, error) {
 }
 
 // getClient with service account generated key
-func getClient() (*http.Client, error) {
+func getClient(keyPath string) (*http.Client, error) {
 
-	f, err := ioutil.ReadFile("key.json")
+	f, err := ioutil.ReadFile(keyPath)
 	if err != nil {
 		return nil, err
 	}

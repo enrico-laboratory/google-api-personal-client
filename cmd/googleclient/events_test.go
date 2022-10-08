@@ -13,13 +13,13 @@ var calendarID string
 var c *GClient
 
 func TestMain(m *testing.M) {
-
-	//credPath := "/Users/eruggieri/repos/google-apil-personal-client/credentials.json"
-	//tksPath := "/Users/eruggieri/repos/google-apil-personal-client/token.json"
+	err := os.Setenv("KEY_PATH", "key.json")
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	ctx := context.Background()
 
-	var err error
 	c, err = NewClient(ctx)
 	if err != nil {
 		log.Fatal(err)
