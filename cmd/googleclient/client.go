@@ -2,14 +2,12 @@ package googleclient
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/option"
+	"io/ioutil"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -25,19 +23,7 @@ type GClient struct {
 
 func NewClient(ctx context.Context) (*GClient, error) {
 
-	credPath := os.Getenv("GOOGLE_CREDENTIALS")
-	b, err := os.ReadFile(credPath)
-	if err != nil {
-		return nil, err
-	}
-
-	clientConfig, err := google.ConfigFromJSON(b, calendar.CalendarScope)
-	if err != nil {
-		return nil, err
-	}
-
-	tknPath := os.Getenv("GOOGLE_TOKEN")
-	client, err := getClient(tknPath, clientConfig)
+	client, err := getClient()
 	if err != nil {
 		return nil, err
 	}
@@ -65,66 +51,14 @@ func NewClient(ctx context.Context) (*GClient, error) {
 	return gClient, nil
 }
 
-// Retrieve a token, saves the token, then returns the generated client.
-func getClient(tknPath string, config *oauth2.Config) (*http.Client, error) {
-	// The file token.json stores the user's access and refresh tokens, and is
-	// created automatically when the authorization flow completes for the first
-	// time.
-	tok, err := tokenFromFile(tknPath)
-	if err != nil {
-		tok, err = getTokenFromWeb(config)
-		if err != nil {
-			return nil, err
-		}
-		err = saveToken(tknPath, tok)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return config.Client(context.Background(), tok), nil
-}
+// getClient with service account generated key
+func getClient() (*http.Client, error) {
 
-// Request a token from the web, then returns the retrieved token.
-func getTokenFromWeb(config *oauth2.Config) (*oauth2.Token, error) {
-	authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
-	fmt.Printf("Go to the following link in your browser then type the "+
-		"authorization code: \n%v\n", authURL)
-
-	var authCode string
-	if _, err := fmt.Scan(&authCode); err != nil {
-		return nil, err
-	}
-
-	tok, err := config.Exchange(context.TODO(), authCode)
+	f, err := ioutil.ReadFile("key.json")
 	if err != nil {
 		return nil, err
 	}
-	return tok, nil
-}
-
-// Retrieves a token from a local file.
-func tokenFromFile(file string) (*oauth2.Token, error) {
-	f, err := os.Open(file)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	tok := &oauth2.Token{}
-	err = json.NewDecoder(f).Decode(tok)
-	return tok, err
-}
-
-// Saves a token to a file path.
-func saveToken(path string, token *oauth2.Token) error {
-	fmt.Printf("Saving credential file to: %s\n", path)
-	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	err = json.NewEncoder(f).Encode(token)
-	if err != nil {
-		return err
-	}
-	return nil
+	cred, err := google.CredentialsFromJSON(context.Background(), f, "https://www.googleapis.com/auth/calendar")
+	c := oauth2.NewClient(context.Background(), cred.TokenSource)
+	return c, nil
 }

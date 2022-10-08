@@ -9,12 +9,13 @@ import (
 
 func TestCalendar(t *testing.T) {
 
-	credPath := "/Users/eruggieri/repos/google-apil-personal-client/credentials.json"
-	tksPath := "/Users/eruggieri/repos/google-apil-personal-client/token.json"
+	//credPath := "/Users/eruggieri/repos/google-apil-personal-client/credentials.json"
+	//tksPath := "/Users/eruggieri/repos/google-apil-personal-client/token.json"
+	//credPath := "/Users/eruggieri/repos/google-apil-personal-client/private_key.json"
 
 	ctx := context.Background()
 
-	c, err := NewClient(credPath, tksPath, ctx)
+	c, err := NewClient(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
